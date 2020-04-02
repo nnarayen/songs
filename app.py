@@ -46,7 +46,6 @@ def index():
 
 @app.route('/_progress', methods=['GET'])
 def get_progress():
-    print(f"state {conversion.get_state()}")
     return {'state': conversion.get_state()}
 
 @app.route('/generate-songs', methods=['POST'])
@@ -68,7 +67,7 @@ def download_songs():
 def convert_songs(songs_list):
     conversion.set_state(1)
     for song in songs_list:
-        YouTube(song).streams.filter(only_audio=True)[0].download(DOWNLOAD_TARGET)
+        YouTube(song).streams.filter(file_extension='mp4')[0].download(DOWNLOAD_TARGET)
 
     # Convert songs and save to converted directory
     conversion.set_state(2)
