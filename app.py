@@ -57,6 +57,10 @@ def convert_songs():
     # Send zip file back to user
     return send_file(file, attachment_filename='songs.zip', as_attachment=True)
 
+@app.before_first_request
+def bootstrap():
+    create_directories()
+
 def extract_filename(prefix, pattern, extension="mp4"):
     regex = re.compile(fr"{prefix}/(.*).{extension}")
     return regex.search(pattern).group(1)
@@ -72,5 +76,4 @@ def clear_directory(directory_path):
         os.remove(file)
 
 if __name__ == "__main__":
-    create_directories()
     app.run(host='0.0.0.0')
