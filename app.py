@@ -35,7 +35,7 @@ def convert_songs():
         orig += (TARGET - orig.dBFS)
 
         # Export file
-        orig.export(f"{CONVERTED_TARGET}/{filename}.mp3", format='mp3')
+        orig.export(f"{CONVERTED_TARGET}/{filename}.mp3", format='mp3', parameters=["-b:a", "96k", "-map", "0:a:0"])
 
     # Create zip file from converted songs
     file = io.BytesIO()
