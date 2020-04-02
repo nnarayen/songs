@@ -1,11 +1,63 @@
 <!doctype html>
 <html>
-<title>Youtube Converter</title>
-<body>
+    <title>Youtube Converter</title>
+    <head>
+        <title>Flask app</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    </head>
+    <script>
+        function getProgress() {
+            return new Promise((resolve, reject) => {
+                const request = new XMLHttpRequest();
+                request.open('GET', '/_progress');
+                request.send();
+
+                request.onreadystatechange = function() {
+                    if (this.readyState === 4) { // Completed request
+                        resolve(request.responseText);
+                    }
+                }
+            });
+        }
+
+        // Periodically poll download progress to update sections
+        async function poll() {
+            while (true) { // eugh
+                await new Promise(res => setTimeout(res, 500));
+                const progressResult = JSON.parse(await getProgress());
+                switch (progressResult['state']) {
+                    case 0:
+                        document.getElementById('progress').classList.add('hidden');
+                        document.getElementById('download-form').classList.add('hidden');
+                        break;
+                    case 1: // Download started
+                        document.getElementById('progress').innerHTML = 'Downloading songs...';
+                        document.getElementById('progress').classList.remove('hidden');
+                        break;
+                    case 2: // Conversion started
+                        document.getElementById('progress').classList.remove('hidden');
+                        document.getElementById('progress').innerHTML = 'Converting songs...';
+                        break;
+                    case 3: // Download ready
+                        document.getElementById('progress').classList.add('hidden');
+                        document.getElementById('download-form').classList.remove('hidden');
+                        break;
+                }
+            }
+        }
+
+        poll();
+    </script>
+    <body>
         <h3>Enter a comma delimited list of YouTube links</h3>
         <form action="/generate-songs" method="POST" id="song-form">
-                <input type="text" id="songs" name="songs" size="100">
-                <input type="submit">
+            <input type="text" id="songs" name="songs" size="100">
+            <input type="submit" value="Begin conversion">
         </form>
-</body>
+
+        <p class="hidden" id="progress"></p>
+        <form class="hidden" action="/download-songs" method="POST" id="download-form">
+            <input type="submit" value="Download songs">
+        </form>
+    </body>
 </html>
